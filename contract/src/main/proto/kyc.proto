@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option java_outer_classname = "KYCProto";
+
+package com.test.foobar.kycService;
+
+message ProcessKYCRequest {
+  string mobileNumber = 1;
+}
+
+message ProcessKYCResponse {
+  bool success = 1;
+  string message = 2;
+}

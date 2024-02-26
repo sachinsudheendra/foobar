@@ -7,33 +7,22 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+
+import static com.test.foobar.kycService.KYCProto.ProcessKYCRequest;
+import static com.test.foobar.kycService.KYCProto.ProcessKYCResponse;
 
 @RestController
 public class KYCController {
-    @PostMapping(value = "/processKYC", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> processKYC(@RequestBody Map<String, String> payload) throws IOException {
-        if (payload.containsKey("mobileNumber")) {
-            String mobileNumber = payload.get("mobileNumber");
-            if (mobileNumber.startsWith("9")) {
-                var response = new HashMap<String, Object>() {{
-                    put("message", "KYC success");
-                    put("success", true);
-                }};
-                return ResponseEntity.ok(response);
-            } else {
-                var response = new HashMap<String, Object>() {{
-                    put("message", "KYC fail");
-                    put("success", false);
-                }};
-                return ResponseEntity.badRequest().body(response);
-            }
+    @PostMapping(value = "/processKYC", consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public ResponseEntity<?> processKYC(@RequestBody byte[] payload) throws IOException {
+        ProcessKYCRequest request = ProcessKYCRequest.parseFrom(payload);
+        ProcessKYCResponse.Builder responseBuilder = ProcessKYCResponse.newBuilder();
+        if (request.getMobileNumber().startsWith("9")) {
+            responseBuilder.setMessage("KYC success").setSuccess(true);
+
+        } else {
+            responseBuilder.setMessage("KYC fail").setSuccess(false);
         }
-        var response = new HashMap<String, Object>() {{
-            put("message", "mobile number not present");
-            put("success", false);
-        }};
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.ok().body(responseBuilder.build().toByteArray());
     }
 }

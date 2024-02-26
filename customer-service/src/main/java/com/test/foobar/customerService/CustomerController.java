@@ -1,5 +1,7 @@
 package com.test.foobar.customerService;
 
+import com.google.protobuf.util.JsonFormat;
+import com.test.foobar.kycService.KYCProto;
 import okhttp3.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,27 +12,23 @@ import java.io.IOException;
 
 @RestController
 public class CustomerController {
-    private static final String kycEndpoint = "http://kycService:8080/processKYC";
+    private static final String kycEndpoint = "http://kycservice:8080/processKYC";
     private static final OkHttpClient client = new OkHttpClient();
 
     @GetMapping(value = "/performKYC", produces = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> performKYC(@RequestParam String mobileNumber) throws IOException {
-        String json = """
-                {
-                    "mobileNumber": "%s"
-                }
-                """.formatted(mobileNumber);
-        RequestBody body = RequestBody.create(json, MediaType.parse("application/json"));
-        Request request = new Request.Builder()
-                .url(kycEndpoint)
-                .post(body)
+        KYCProto.ProcessKYCRequest request = KYCProto.ProcessKYCRequest.newBuilder()
+                .setMobileNumber(mobileNumber)
                 .build();
-        try (Response response = client.newCall(request).execute()) {
-            String responseBody = response.body().string();
-            if (response.isSuccessful()) {
-                return ResponseEntity.ok().body(responseBody);
+        RequestBody body = RequestBody.create(request.toByteArray(), MediaType.parse("application/octet-stream"));
+        Request httpRequest = new Request.Builder().url(kycEndpoint).post(body).build();
+        try (Response res = client.newCall(httpRequest).execute()) {
+            KYCProto.ProcessKYCResponse responseBody = KYCProto.ProcessKYCResponse.parseFrom(res.body().bytes());
+            String jsonResponse = JsonFormat.printer().print(responseBody);
+            if (res.isSuccessful()) {
+                return ResponseEntity.ok().body(jsonResponse);
             }
-            return ResponseEntity.badRequest().body(responseBody);
+            return ResponseEntity.badRequest().body(jsonResponse);
         }
     }
 }

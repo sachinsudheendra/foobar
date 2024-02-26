@@ -15,7 +15,8 @@
     <name>foobar</name>
     <description>Demo FooBar App</description>
     <modules>
-        <module>customer-service</module>
+        <module>contract</module>
         <module>kyc-service</module>
+        <module>customer-service</module>
     </modules>
 </project>

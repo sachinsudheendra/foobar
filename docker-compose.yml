@@ -1,17 +1,12 @@
 services:
-  customerService:
-    image: maven:3.9.6-eclipse-temurin-21
+  customerservice:
+    build:
+      context: .
+      target: customerservice
     ports:
       - 4444:8080
-    volumes:
-      - .:/customer-service
-    working_dir: /customer-service
-    entrypoint: mvn -pl customer-service spring-boot:run
-  kycService:
-    image: maven:3.9.6-eclipse-temurin-21
-    volumes:
-      - .:/kyc-service
-    working_dir: /kyc-service
-    entrypoint: mvn -pl kyc-service spring-boot:run
-
+  kycservice:
+    build:
+      context: .
+      target: kycservice
 
