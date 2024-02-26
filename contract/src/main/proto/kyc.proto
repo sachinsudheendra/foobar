@@ -4,6 +4,10 @@ option java_outer_classname = "KYCProto";
 
 package com.test.foobar.kycService;
 
+service KYCService {
+  rpc process(ProcessKYCRequest) returns(ProcessKYCResponse);
+}
+
 message ProcessKYCRequest {
   string mobileNumber = 1;
 }
