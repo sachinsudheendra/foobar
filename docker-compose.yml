@@ -9,8 +9,6 @@ services:
     entrypoint: mvn -pl customer-service spring-boot:run
   kycService:
     image: maven:3.9.6-eclipse-temurin-21
-    ports:
-      - 5555:8080
     volumes:
       - .:/kyc-service
     working_dir: /kyc-service
